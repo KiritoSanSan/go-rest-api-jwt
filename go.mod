@@ -3,8 +3,10 @@ module comp-club
 go 1.22.4
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-chi/render v1.0.3
+	github.com/google/uuid v1.6.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/ncruces/go-sqlite3 v0.18.2
 	golang.org/x/crypto v0.26.0
@@ -13,7 +15,6 @@ require (
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/ajg/form v1.5.1 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
 	github.com/tetratelabs/wazero v1.8.0 // indirect

@@ -2,6 +2,7 @@ package main
 
 import (
 	"comp-club/handler"
+	middl "comp-club/middleware"
 	"comp-club/storage/sqlite"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -28,61 +29,32 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Println("Connected to database")
-	//memoryStorage := sqlite.NewMemoryStorage()
-	//handler := handler.NewHandler(memoryStorage)
+
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
 	router.Use(middleware.URLFormat)
 	router.Use(middleware.Logger)
 
-	//users
 	router.Post("/login", handler.Login(storage))
-	router.Get("/users", handler.GetAllUsers(storage))
-	router.Get("/auth-user", handler.AuthUserToken(storage))
 	router.Post("/logout", handler.Logout())
-	router.Get("/users/{id}", handler.GetUserById(storage))
-	router.Post("/register", handler.NewUser(storage))
-	router.Delete("/delete/{id}", handler.DeleteUser(storage))
-	router.Put("/update/{id}", handler.UpdateUser(storage))
+	router.Post("/register", handler.NewUser(storage)) //todo: check the password while creating user, need to be al least 8 character, 1 special word and etc
 
-	//CompClubs
-	//router.Get("/comp-clubs",)
-	//router.Get("/comp-clubs/{id}",)
-	//router.Post("comp")
+	router.Post("/refresh", handler.RefreshTokenHandler)
+
+	router.Group(func(r chi.Router) {
+		r.Use(middleware.RequestID)
+		r.Use(middleware.RealIP)
+		r.Use(middleware.Logger)
+		r.Use(middleware.URLFormat)
+
+		r.Use(middl.GetAdminMiddlewareFunc(storage))
+
+		r.Get("/users/{id}", handler.GetUserById(storage))
+		r.Get("/users", handler.GetAllUsers(storage))
+		r.Delete("/delete/{id}", handler.DeleteUser(storage))
+		r.Put("/update/{id}", handler.UpdateUser(storage))
+	})
 
 	http.ListenAndServe(":8080", router)
 
-	//id, err := storage.NewUser("Beka", "Beksultan", 64.9, "Astana")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//log.Printf("Created user with id %d", id)
-
-	//user, err := storage.GetUserById(1)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//log.Println(user.Name, user.Surname, user.Balance, user.City)
-
-	//var userlist []*sqlite.User
-	//userlist, err = storage.GetAllUsers()
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//for i, _ := range userlist {
-	//	fmt.Print(userlist[i].Id, userlist[i].Name, userlist[i].Surname, userlist[i].Balance, userlist[i].City)
-	//	fmt.Println()
-	//}
-
-	//err = storage.UpdateUsers(1, "Ivan", "Alex", 100, "Novosib")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//log.Printf("User with id %d has been updated", 1)
-
-	//err = storage.DeleteUserById(1)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//log.Println("Deleted user")
 }
